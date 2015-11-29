@@ -15,23 +15,26 @@ tr_idx <- createDataPartition(Xtt$income, p = 0.7, list = F)
 Xtrain <- Xtt[tr_idx,]; Xtest <- Xtt[-tr_idx,]
 
 
-tr_ctrl <- trainControl(method = "cv", number = 5, repeats = 5)
 
+tr_ctrl <- trainControl(method = "boot", number = 1,
+                        verboseIter = TRUE, returnData = FALSE)
 
+tg0 <- expand.grid(nrounds          = seq(100, 900, by = 100),
+                   eta              = c(0.1, 0.05, 0.01),
+                   max_depth        = seq(1, 7, by = 2),
+                   min_child_weight = seq(5, 30, by = 5),
+                   colsample_bytree = seq(0.8, 1, by = 0.1),
+                   gamma            = seq(0, 16, by = 2))
+nrow(tg0) # 17496
 
-tg0 <- expand.grid(nrounds          = seq(100, 1500, by = 100),
-                   eta              = c(0.1, 0.05, 0.03, 0.01, 0.005, 0.001),
-                   max_depth        = seq(1, 10, by = 1),
-                   min_child_weight = seq(5, 50, by = 5),
-                   colsample_bytree = seq(0.5, 1, by = 0.1),
-                   gamma            = seq(0, 20, by = 1))
 
 xgb0 <- train(data = Xtrain, income ~.,
               method = "xgbTree",
               trControl = tr_ctrl,
               tuneGrid = tg0,
               objective = "binary:logistic",
-              nthread = 4)
+              nthread = 4,
+              verbose = 1)
 
 # [xgb0] Best parameter config from first round of tuning
 bst0 <- xgb0$finalModel$tuneValue
