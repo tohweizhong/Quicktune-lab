@@ -24,8 +24,8 @@ tg0 <- expand.grid(nrounds          = seq(100, 900, by = 100),
                    max_depth        = seq(1, 7, by = 2),
                    min_child_weight = seq(5, 30, by = 5),
                    colsample_bytree = seq(0.8, 1, by = 0.1),
-                   gamma            = seq(0, 16, by = 2))
-nrow(tg0) # 17496
+                   gamma            = seq(0, 70, by = 10))
+nrow(tg0) # 15552
 
 
 xgb0 <- train(data = Xtrain, income ~.,
@@ -36,13 +36,7 @@ xgb0 <- train(data = Xtrain, income ~.,
               nthread = 4,
               verbose = 1)
 
-# [xgb0] Best parameter config from first round of tuning
-bst0 <- xgb0$finalModel$tuneValue
-
-# [xgb0] tuning dataset (for RegressTune)
-tune_df0 <- xgb0$results
-
-# [xgb0] Save
-save(file = "scripts_WZ/bst0.RData", bst0)
-save(file = "Scripts_WZ/xgb0.RData", xgb0)
-save(file = "Scripts_WZ/tune_df0.RData", tune_df0)
+# save grid data
+grid_adult <- xgb0$results
+grid_adult <- subset(grid_adult, select = -c(AccuracySD, KappaSD))
+save(file = "data/RData/grid_adult.RData", grid_adult)
