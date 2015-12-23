@@ -28,4 +28,4 @@ xgb0 <- train(data = Xtt, Class ~.,
 # save grid data
 aus_dr <- xgb0$results
 aus_dr <- subset(aus_dr, select = -c(AccuracySD, KappaSD))
-save(file = "data/RData/aus_dr.RData", aus_dr)
+save(file = "data/RData/grid_aus.RData", aus_dr)
