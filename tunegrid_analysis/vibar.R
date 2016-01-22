@@ -27,7 +27,7 @@ VIbar <- function(models, .horiz, .title){
 
 
 
-
+# not working
 ggVIbar <- function(models, .horiz){
     
     ols0 <- models[[1]]

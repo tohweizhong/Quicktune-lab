@@ -29,7 +29,7 @@ tlt <- function(){
     return(mods)
 }
 tlt.time <- system.time(tlt_mods <- tlt())
-save(list = "tlt_mods", file = "R/tlt_mods.RData")
+save(list = "tlt_mods", file = "R/tlt_mods_student.RData")
 
 tlt.time # 104.51 seconds
 tlt_pred <- predict(tlt_mods[[2]], subset(Xtest, select = -G3))
@@ -64,11 +64,43 @@ exh <- function(){
     return(xgb)
 }
 exh.time <- system.time(exh_mod <- exh())
-save(list = "exh_mod", file = "R/exh_mod.RData")
+save(list = "exh_mod", file = "R/exh_mod_student.RData")
 exh.time # 1202.94 secs
 exh_pred <- predict(exh_mod, subset(Xtest, select = -G3))
 Metrics::rmse(predicted = exh_pred, actual = Xtest$G3) # 1.42573
 
+# ====
+# tlt + 1x PopulateNext() + grid search
+
+pn <- function(){
+    
+    load("testing_tlt/RData/tlt_mods_student.RData")
+    tg <- PopulateNext(tg0 = tlt_mods[[2]]$results[1:7], xgb = tlt_mods[[2]])
+    
+    tr_ctrl <- trainControl(method = "boot", number = 1,
+                            verboseIter = TRUE, returnData = FALSE)
+    nrow(tg)
+    
+    xgb <- train(form = G3 ~.,
+                 data = Xtrain,
+                 method = "xgbTree",
+                 trControl = tr_ctrl,
+                 tuneGrid = tg,
+                 objective = "reg:linear",
+                 nthread = 4,
+                 verbose = 1,
+                 metric = "RMSE")
+}
+pn.time <- system.time(pn_mod <- pn())
+save(list = "pn_mod", file = "R/pn_mod_student.RData")
+
+pn.time # 139.36 seconds
+
+pn_pred <- predict(pn_mod, subset(Xtest, select = -G3))
+Metrics::rmse(predicted = pn_pred, actual = Xtest$G3) # 1.418791
+
+
+# ====
 # ====
 
 # post mortem

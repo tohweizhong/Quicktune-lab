@@ -79,3 +79,48 @@ save(list = "pls0", file = "data/RData/adult_pls0.RData")
 
 
 VIbar(models = list(ols0, rf0, pca0, pls0), .horiz = TRUE, .title = "adult")
+ggVIbar(models = list(ols0, rf0, pca0, pls0), .horiz = TRUE)
+
+
+
+
+
+# ====
+
+
+
+
+library(Standard)
+str(grid_adult)
+summary(grid_adult)
+
+GetUnique(subset(grid_adult, select = c(eta, max_depth, gamma, colsample_bytree, min_child_weight, nrounds)))
+
+
+# OLS
+ols <- lm(data = grid_adult[, -8],
+          Accuracy ~ (eta + max_depth + gamma + colsample_bytree + min_child_weight + nrounds)^2)
+
+stepmod <- step(lm(data = grid_adult[,-8], Accuracy ~.), direction = "both")
+
+
+
+
+tg0 <- expand.grid(nrounds          = seq(100, 900, by = 100),
+                   eta              = c(0.1, 0.05, 0.01),
+                   max_depth        = seq(1, 7, by = 2),
+                   min_child_weight = seq(5, 30, by = 5),
+                   colsample_bytree = seq(0.8, 1, by = 0.1),
+                   gamma            = seq(0, 70, by = 10))
+
+
+
+means <- apply(tg0, MARGIN = 2, FUN = function(x){
+    x %>% mean
+})
+
+tg1 <- apply(tg0, MARGIN = 2, FUN = function(x){
+    m <- mean(x)
+    x <- x + m
+    return(x)
+})s

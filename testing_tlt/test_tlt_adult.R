@@ -42,9 +42,6 @@ tlt.time # 194.84 seconds
 tlt_pred <- predict(tlt_mods[[2]], subset(Xtest, select = -income))
 Metrics::rmse(predicted = tlt_pred, actual = Xtest$G3) # 1.615632
 
-
-
-
 # ====
 # Exhaustive search
 exh <- function(){
@@ -72,3 +69,32 @@ exh <- function(){
                  metric = "ROC")
 }
 exh.time <- system.time(exh_mod <- exh())
+
+# ====
+# tlt + 1x PopulateNext() + grid search
+
+pn <- function(){
+    
+    load("testing_tlt/RData/tlt_mods_adult.RData")
+    tg <- PopulateNext(tg0 = tlt_mods[[2]]$results[1:7], xgb = tlt_mods[[2]])
+    
+    tr_ctrl <- trainControl(method = "boot", number = 1,
+                            verboseIter = TRUE, returnData = FALSE,
+                            classProbs = TRUE, summaryFunction = twoClassSummary)
+    
+    nrow(tg)
+    
+    xgb <- train(form = income ~.,
+                 data = Xtrain,
+                 method = "xgbTree",
+                 trControl = tr_ctrl,
+                 tuneGrid = tg,
+                 objective = "binary:logistic",
+                 nthread = 4,
+                 verbose = 1,
+                 metric = "ROC")
+}
+pn.time <- system.time(pn_mod <- pn())
+
+pn_pred <- predict(pn_mod, subset(Xtest, select = -income))
+Metrics::rmse(predicted = pn_pred, actual = Xtest$income) # 1.615632
