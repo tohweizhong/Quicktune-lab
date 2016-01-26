@@ -2,10 +2,10 @@
 library(caret)
 library(randomForest)
 
-load(file = "data/RData/grid_adult.RData")
+load(file = "tunegrid_analysis/RData/grid_adult.RData")
 
 # mean center and scale
-grid_adult <- data.frame(scale(grid_adult, center = TRUE, scale = TRUE))
+#grid_adult <- data.frame(scale(grid_adult, center = TRUE, scale = TRUE))
 
 # take a look
 featurePlot(x = grid_adult[1:6], y = grid_adult$Accuracy, type = c("p", "smooth"))
@@ -29,7 +29,7 @@ barplot(summary(ols0)[[4]][-1,1],
         names.arg = rownames(summary(ols0)[[4]][-1]),
         main = "OLS")
 
-save(list = "ols0", file = "data/RData/adult_ols0.RData")
+save(list = "ols0", file = "tunegrid_analysis/RData/adult_ols0.RData")
 
 ols0_pred <- predict(ols0, newdata = test)
 
